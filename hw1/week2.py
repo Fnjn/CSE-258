@@ -9,7 +9,7 @@ def parseData(fname):
     yield eval(l)
 
 print "Reading data..."
-data = list(parseData("book_descriptions_50000.json"))
+data = list(parseData("http://jmcauley.ucsd.edu/cse255/data/amazon/book_descriptions_50000.json"))
 print "done"
 
 ### Naive bayes to determine p(childrens book | mentions wizards and mentions witches) ###

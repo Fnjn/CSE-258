@@ -8,7 +8,7 @@ def parseData(fname):
     yield eval(l)
 
 print "Reading data..."
-data = list(parseData("beer_50000.json"))
+data = list(parseData("http://jmcauley.ucsd.edu/cse255/data/beer/beer_50000.json"))
 print "done"
 
 def feature(datum):
