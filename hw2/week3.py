@@ -11,9 +11,9 @@ def parseData(fname):
   for l in urllib.urlopen(fname):
     yield eval(l)
 
-print "Reading data..."
+print ("Reading data...")
 data = list(parseData("http://jmcauley.ucsd.edu/cse190/data/beer/beer_50000.json"))
-print "done"
+print ("done")
 
 X = [[x['review/overall'], x['review/taste'], x['review/aroma'], x['review/appearance'], x['review/palate']] for x in data]
 

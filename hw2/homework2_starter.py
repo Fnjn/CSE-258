@@ -9,16 +9,16 @@ def parseData(fname):
   for l in urlopen(fname):
     yield eval(l)
 
-print("Reading data...")
-data = list(parseData("http://jmcauley.ucsd.edu/cse190/data/beer/beer_50000.json"))
-print("done")
+# print("Reading data...")
+# data = list(parseData("http://jmcauley.ucsd.edu/cse190/data/beer/beer_50000.json"))
+# print("done")
 
 def feature(datum):
   feat = [1, datum['review/taste'], datum['review/appearance'], datum['review/aroma'], datum['review/palate'], datum['review/overall']]
   return feat
 
-X = [feature(d) for d in data]
-y = [d['beer/ABV'] >= 6.5 for d in data]
+# X = [feature(d) for d in data]
+# y = [d['beer/ABV'] >= 6.5 for d in data]
 
 def inner(x,y):
   return sum([x[i]*y[i] for i in range(len(x))])
@@ -57,8 +57,8 @@ def fprime(theta, X, y, lam):
     dl[k] -= lam*2*theta[k]
   return numpy.array([-x for x in dl])
 
-X_train = X
-y_train = y
+# X_train = X
+# y_train = y
 
 ##################################################
 # Train                                          #
@@ -83,8 +83,8 @@ def performance(theta):
 # Validation pipeline                            #
 ##################################################
 
-lam = 1.0
-
-theta = train(lam)
-acc = performance(theta)
-print("lambda = " + str(lam) + ":\taccuracy=" + str(acc))
+# lam = 1.0
+#
+# theta = train(lam)
+# acc = performance(theta)
+# print("lambda = " + str(lam) + ":\taccuracy=" + str(acc))
