@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 from urllib.request import urlopen
 import scipy.optimize
 import random
@@ -19,6 +20,7 @@ def feature(datum):
 
 # X = [feature(d) for d in data]
 # y = [d['beer/ABV'] >= 6.5 for d in data]
+
 
 def inner(x,y):
   return sum([x[i]*y[i] for i in range(len(x))])
@@ -64,7 +66,7 @@ def fprime(theta, X, y, lam):
 # Train                                          #
 ##################################################
 
-def train(lam):
+def train(lam, X, X_train, y_train):
   theta,_,_ = scipy.optimize.fmin_l_bfgs_b(f, [0]*len(X[0]), fprime, pgtol = 10, args = (X_train, y_train, lam))
   return theta
 
