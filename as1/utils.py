@@ -7,9 +7,9 @@ def split_data(X, Y, holdout_ratio, shuffle=False):
     m_holdout = int(m * holdout_ratio)
 
     if shuffle:
-        r = zip(X, Y)
+        r = list(zip(X, Y))
         random.shuffle(r)
-        X, Y = zip(*r)
+        X, Y = list(zip(*r))
 
     return X[:-m_holdout], Y[:-m_holdout], X[-m_holdout:], Y[-m_holdout:]
 
