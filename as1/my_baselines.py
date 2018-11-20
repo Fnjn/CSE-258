@@ -15,6 +15,8 @@ def ratingBaseline(ratingPrediction):
 ### Would-purchase
 def purchaseBaseline(purchasePrediction):
     predictions = open("predictions_Purchase.txt", 'w')
+    pos_cnt = 0
+    total_cnt = 0
     for l in open("pairs_Purchase.txt"):
         if l.startswith("reviewerID"):
             #header
@@ -22,8 +24,12 @@ def purchaseBaseline(purchasePrediction):
             continue
         u,i = l.strip().split('-')
         purchase = purchasePrediction(u, i)
+        if purchase == 1:
+            pos_cnt += 1
+        total_cnt += 1
         predictions.write(u + '-' + i + "," + str(purchase) + "\n")
 
+    print(pos_cnt / total_cnt, total_cnt)
     predictions.close()
 
 ### Rating Evaluation Mean Square Error
