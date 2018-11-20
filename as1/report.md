@@ -4,13 +4,13 @@
 
 ### Algorithm Description
 
-A simple
+A simple predictor that return 1 if the user has purchased same category before, Otherwise return 0.
 
 ```python
-def p3(u, i):
+def predictor(u, i):
     try:
-        reviewer_pair = reviewer_cat_pair[u]
-        item_pair = item_cat_pair[i]
+        reviewer_pair = reviewer_category_pair[u]
+        item_pair = item_category_pair[i]
     except KeyError:
         return 0
 
@@ -26,6 +26,7 @@ Ranking:,676/816  Score: 0.63549
 Ranking: 729/816  Score: 0.63414
 
 ### Comment
+I also experimented K-nearest-neighbors (cosine similarity) and predict based on how many neighbors has purchased this item. But this doesn't give better result than the simple predictor above.
 
 ## Rating Prediction
 
@@ -37,26 +38,39 @@ I use Latern Factor model (Matrix Factorization) for this task.
 The implementation of matrix factorization is credited to Albert Au Yeung from [his blog post](http://www.albertauyeung.com/post/python-matrix-factorization/)
 
 
+```python
+def mse(self):
+    """
+    A function to compute the total mean square error
+    """
+    xs, ys = self.R.nonzero()
+    predicted = self.full_matrix()
+    error = 0
+    for x, y in zip(xs, ys):
+        error += pow(self.R[x, y] - predicted[x, y], 2)
+    return np.sqrt(error)
+```
+
 
 #### Gradient Descent Update
 
 ```python
 def sgd(self):
-        """
-        Perform stochastic graident descent
-        """
-        for i, j, r in self.samples:
-            # Computer prediction and error
-            prediction = self.get_rating(i, j)
-            e = (r - prediction)
+    """
+    Perform stochastic graident descent
+    """
+    for i, j, r in self.samples:
+        # Computer prediction and error
+        prediction = self.get_rating(i, j)
+        e = (r - prediction)
 
-            # Update biases
-            self.b_u[i] += self.alpha * (e - self.beta * self.b_u[i])
-            self.b_i[j] += self.alpha * (e - self.beta * self.b_i[j])
+        # Update biases
+        self.b_u[i] += self.alpha * (e - self.beta * self.b_u[i])
+        self.b_i[j] += self.alpha * (e - self.beta * self.b_i[j])
 
-            # Update user and item latent feature matrices
-            self.P[i, :] += self.alpha * (e * self.Q[j, :] - self.beta * self.P[i,:])
-            self.Q[j, :] += self.alpha * (e * self.P[i, :] - self.beta * self.Q[j,:])
+        # Update user and item latent feature matrices
+        self.P[i, :] += self.alpha * (e * self.Q[j, :] - self.beta * self.P[i,:])
+        self.Q[j, :] += self.alpha * (e * self.P[i, :] - self.beta * self.Q[j,:])
 ```
 #### Predictor
 1. If the user and item both not in the dataset, return average rating of all items.
@@ -65,7 +79,7 @@ def sgd(self):
  <img src="rating_predictor_formula.png" alt="Predictor" align="middle" width="200">
 
 ```python
-def predict(u, i):
+def predictor(u, i):
     if u not in RA.user2index and i not in RA.item2index:
         return RA.all_avg
     if u not in RA.user2index:
