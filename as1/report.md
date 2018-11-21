@@ -21,7 +21,7 @@ def predictor(u, i):
 
 ### Result
 #### Public leaderboard
-Ranking:,676/816  Score: 0.63549
+Ranking: 676/816  Score: 0.63549
 #### Private leaderboard
 Ranking: 729/816  Score: 0.63414
 
