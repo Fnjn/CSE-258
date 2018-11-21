@@ -32,10 +32,19 @@ I also experimented K-nearest-neighbors (cosine similarity) and predict based on
 
 ### Algorithm Description
 
-I use Latern Factor model (Matrix Factorization) for this task.
+I use Latent Factor model (Matrix Factorization) for this task. Because the size of users and items is very large, its difficult to directly perform gradient descent on the large users-items rating matrix. The model apply two small matrix P and Q to approximate the large matrix by performing matrix multiplication on P and Q. The estimated rating of item i given by user u is calculated by:<br>
+<img src="rating_predictor_formula.png" alt="Predictor" align="middle" width="200">
+<!---
+\bar{r} = \alpha + \beta_i + \beta_u + P_i^TQ_u
+-->
 
+The implementation of matrix factorization is modified from Albert Au Yeung's [blog post](http://www.albertauyeung.com/post/python-matrix-factorization/)
 
-The implementation of matrix factorization is credited to Albert Au Yeung from [his blog post](http://www.albertauyeung.com/post/python-matrix-factorization/)
+### Loss Function
+The loss function is defined by the sum of difference of true rating and estimated rating, plus regularization. <img src="rating_loss_function.png" alt="Loss Function" align="middle" width="350">
+<!---
+L = \sum_{u,i}(r_{u,i} - P_u^T P_i - \alpha - \beta_u - \beta_i)^2 + \lambda(\sum_u ||P_u|| + \sum_i||Q_i||)
+-->
 
 
 ```python
@@ -53,6 +62,48 @@ def mse(self):
 
 
 #### Gradient Descent Update
+The model would update bias term a, b_u, b_i and matrix P, Q on every training data.
+
+1. Bias term
+    - Calculate the derivative of a, b_u, b_i by
+    <br><img src="rating_a_derivative.png" alt="P Update" align="center" width="200">
+    <br><img src="rating_bu_derivative.png" alt="P Update" align="center" width="200">
+    <br><img src="rating_bi_derivative.png" alt="P Update" align="center" width="200">
+
+    - Then update b_u, b_i by
+    <br><img src="rating_a_update.png" alt="P Update" align="center" width="200">
+    <br><img src="rating_bu_update.png" alt="P Update" align="center" width="200">
+    <br><img src="rating_bi_update.png" alt="P Update" align="center" width="200">
+
+<!---
+\frac{\partial L_{u,i}}{\partial \alpha} = -2(r_{i,j} - \bar{r_{i,j}})
+\frac{\partial L_{u,i}}{\partial \beta_{u}} = -2(r_{i,j} - \bar{r_{i,j}})
+\frac{\partial L_{u,i}}{\partial \beta_{i}} = -2(r_{i,j} - \bar{r_{i,j}})
+
+\alpha = \alpha - lr \frac{\partial L_{u,i}}{\partial \alpha}
+\beta_{u} = \beta_{u} - lr \frac{\partial L_{u,i}}{\partial \beta_{u}}
+\beta_{i} = \beta_{i} - lr \frac{\partial L_{u,i}}{\partial \beta_{i}}
+-->
+
+
+
+
+2. Matrix P, Q
+    - Calculate the derivative of P, Q by
+<br><img src="rating_p_derivative.png" alt="P Update" align="center" width="200">
+<br><img src="rating_q_derivative.png" alt="P Update" align="center" width="200">
+
+    Then update P and Q by
+<br><img src="rating_p_update.png" alt="P Update" align="center" width="200">
+<br><img src="rating_q_update.png" alt="P Update" align="center" width="200">
+
+<!---
+\frac{\partial L_{u,i}}{P_{u,k}} = -2(r_{i,j} - \bar{r_{i,j}})Q_{i,k}
+\frac{\partial L_{u,i}}{Q_{i,k}} = -2(r_{i,j} - \bar{r_{i,j}}){P_{u,k}}
+
+P_{u,k} = P_{u,k} - lr \frac{\partial L_{u,i}}{\partial P_{u,k}}
+Q_{i,k} = Q_{i,k} - lr \frac{\partial L_{u,i}}{\partial Q_{i,k}}
+-->
 
 ```python
 def sgd(self):
@@ -65,12 +116,13 @@ def sgd(self):
         e = (r - prediction)
 
         # Update biases
-        self.b_u[i] += self.alpha * (e - self.beta * self.b_u[i])
-        self.b_i[j] += self.alpha * (e - self.beta * self.b_i[j])
+        alpha += 2 * self.lr1 * e
+        self.b_u[i] += 2 * self.lr1 * e
+        self.b_i[j] += 2 * self.lr1 * e
 
         # Update user and item latent feature matrices
-        self.P[i, :] += self.alpha * (e * self.Q[j, :] - self.beta * self.P[i,:])
-        self.Q[j, :] += self.alpha * (e * self.P[i, :] - self.beta * self.Q[j,:])
+        self.P[i, :] += 2 * self.lr2 * (e * self.Q[j, :])
+        self.Q[j, :] += 2 * self.lr2 * (e * self.P[i, :])
 ```
 #### Predictor
 1. If the user and item both not in the dataset, return average rating of all items.
@@ -104,3 +156,4 @@ Ranking: 442/461  Score: 1.19568
 Ranking: 439/461  Score: 1.17019
 
 ### Comment
+I experimented various K (size of latent variables) 10, 20, 50, 100, 500. K=50 has the best performance in validation set and I use it in my submission.
