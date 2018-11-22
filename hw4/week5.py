@@ -9,14 +9,14 @@ from nltk.stem.porter import *
 from sklearn import linear_model
 
 def parseData(fname):
-  for l in urllib.urlopen(fname):
+  for l in urllib.request.urlopen(fname):
     yield eval(l)
 
 ### Just the first 5000 reviews
 
-print "Reading data..."
+print ("Reading data...")
 data = list(parseData("http://jmcauley.ucsd.edu/cse190/data/beer/beer_50000.json"))[:5000]
-print "done"
+print ("done")
 
 ### How many unique words are there?
 
@@ -25,7 +25,7 @@ for d in data:
   for w in d['review/text'].split():
     wordCount[w] += 1
 
-print len(wordCount)
+print (len(wordCount))
 
 ### Ignore capitalization and remove punctuation
 
